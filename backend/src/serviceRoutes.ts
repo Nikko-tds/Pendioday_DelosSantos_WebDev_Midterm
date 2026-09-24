@@ -3,63 +3,62 @@ import { pool } from './db';
 
 const router = Router();
 
-// GET /api/incidents
+// GET /api/services
 router.get('/', async (req, res) => {
   try {
     const search = req.query.search as string || '';
     const query = search
-      ? 'SELECT * FROM incidents WHERE title ILIKE $1 ORDER BY created_at DESC'
-      : 'SELECT * FROM incidents ORDER BY created_at DESC';
+      ? 'SELECT * FROM services WHERE title ILIKE $1 ORDER BY created_at DESC'
+      : 'SELECT * FROM services ORDER BY created_at DESC';
     const params = search ? [`%${search}%`] : [];
 
     const result = await pool.query(query, params);
     return res.status(200).json(result.rows);
   } catch (err: any) {
-    console.error('Fetch incidents error:', err);
+    console.error('Fetch services error:', err);
     return res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/incidents
 router.post('/', async (req, res) => {
   try {
-    const { title, description, severity } = req.body;
+    const { name, endpointUrl, environment, status, version, ownerEmail, createdAt } = req.body;
 
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
+    if (!name || !endpointUrl) {
+      return res.status(400).json({ error: 'Name and endpoint are required' });
     }
 
     const result = await pool.query(
-      'INSERT INTO incidents (title, description, severity, status) VALUES ($1, $2, $3, $4) RETURNING *',
-      [title, description, severity || 'LOW', 'OPEN']
+      'INSERT INTO SERVICES (name, endpointUrl, environment, status, version, ownerEmail, createdAt) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, endpointUrl, environment, status, version, ownerEmail, createdAt || 'DEVELOPMENT', 'HEALTHY']
     );
 
     return res.status(201).json(result.rows[0]);
   } catch (err: any) {
-    console.error('Create incident error:', err);
+    console.error('Create service error:', err);
     return res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE /api/incidents/:id
+// DELETE /api/services/:id
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM incidents WHERE id = $1', [id]);
-    return res.status(200).json({ message: 'Incident deleted successfully' });
+    await pool.query('DELETE FROM services WHERE id = $1', [id]);
+    return res.status(200).json({ message: 'service deleted successfully' });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
 });
 
-// PATCH /api/incidents/:id
+// PATCH /api/services/:id
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { environment, status } = req.body;
     const result = await pool.query(
-      'UPDATE incidents SET status = $1 WHERE id = $2 RETURNING *',
-      [status, id]
+      'UPDATE services SET environment = $1, status = $2 WHERE id = $3 RETURNING *',
+      [environment, status, id]
     );
     return res.status(200).json(result.rows[0]);
   } catch (err: any) {

@@ -6,7 +6,6 @@ import { pool } from './db';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
-// REGISTER ROUTE
 router.post('/register', async (req, res) => {
   try {
     const email = req.body.email || req.body.username;
@@ -16,13 +15,11 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Check if user already exists
     const userCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userCheck.rows.length > 0) {
       return res.status(409).json({ error: 'Email is already registered' });
     }
 
-    // Hash passwordHash & save user
     const hashedpasswordHash = await bcrypt.hash(passwordHash, 10);
     const newUser = await pool.query(
       'INSERT INTO users (email, passwordHash) VALUES ($1, $2) RETURNING id, email',
@@ -39,7 +36,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// LOGIN ROUTE
 router.post('/login', async (req, res) => {
   try {
     const email = req.body.email || req.body.username;
