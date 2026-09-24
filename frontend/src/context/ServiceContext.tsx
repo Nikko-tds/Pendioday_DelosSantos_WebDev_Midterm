@@ -17,8 +17,7 @@ export interface State {
 }
 
 export type Action =
-  | { type: "SET_AUTH"; payload: { user: any; token: string } }
-  | { type: "LOGOUT" }
+  
   | { type: "SET_ENV_FILTER"; payload: Environment | "ALL" }
   | { type: "FETCH_SERVICES_SUCCESS"; payload: Microservice[] }
   | { type: "CREATE_SERVICE_SUCCESS"; payload: Microservice }
@@ -35,16 +34,9 @@ const initialState: State = {
   error: null,
 };
 
-const microserviceReducer = (state: State, action: Action): State => {
+const serviceReducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case "SET_AUTH":
-      return {
-        ...state,
-        user: action.payload.user,
-        token: action.payload.token,
-      };
-    case "LOGOUT":
-      return { ...initialState, user: null, token: null };
+    
     case "SET_ENV_FILTER":
       return { ...state, selectedEnvironment: action.payload };
     case "FETCH_SERVICES_SUCCESS":
@@ -70,18 +62,18 @@ const microserviceReducer = (state: State, action: Action): State => {
   }
 };
 
-export const MicroserviceContext = createContext<
+export const ServiceContext = createContext<
   { state: State; dispatch: Dispatch<Action> } | undefined
 >(undefined);
 
-export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({
+export const ServiceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [state, dispatch] = useReducer(microserviceReducer, initialState);
+  const [state, dispatch] = useReducer(serviceReducer, initialState);
 
   return (
-    <MicroserviceContext.Provider value={{ state, dispatch }}>
+    <ServiceContext.Provider value={{ state, dispatch }}>
       {children}
-    </MicroserviceContext.Provider>
+    </ServiceContext.Provider>
   );
 };
