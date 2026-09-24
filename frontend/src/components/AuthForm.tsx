@@ -7,8 +7,9 @@ export const AuthForm: React.FC = () => {
   if (!context) throw new Error('AuthForm must be used within AuthProvider');
   
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [passwordHash, setPasswordHash] = useState('');
+  const [role, setRole] = useState('DEVELOPER')
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,10 +18,10 @@ export const AuthForm: React.FC = () => {
     
     try {
       if (isLogin) {
-        const { token } = await login(username, password);
-        context.dispatch({ type: 'SET_AUTH', payload: {user: username, token: token} });
+        const { token } = await login(email, passwordHash, role);
+        context.dispatch({ type: 'LOGIN', payload: token});
       } else {
-        await register(username, password);
+        await register(email, passwordHash, role);
         alert('Registration successful! Please log in.');
         setIsLogin(true);
       }
@@ -34,8 +35,12 @@ export const AuthForm: React.FC = () => {
       <h3>{isLogin ? 'Sign In' : 'Register'}</h3>
       {error && <p className="text-red-500">{error}</p>}
       
-      <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+      <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+      <input type="password" placeholder="Password" value={passwordHash} onChange={e => setPasswordHash(e.target.value)} required />
+      <select onChange={(e) => setRole(e.target.value)}>
+        <option value="DEVELOPER">Developer</option>
+        <option value="LEAD">Lead</option>
+      </select>
       
       <button type="submit">{isLogin ? 'Login' : 'Create Account'}</button>
       

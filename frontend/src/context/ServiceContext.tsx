@@ -17,7 +17,8 @@ export interface State {
 }
 
 export type Action =
-  
+  | { type: "SET_AUTH"; payload: { user: any; token: string } }
+  | { type: "LOGOUT" }
   | { type: "SET_ENV_FILTER"; payload: Environment | "ALL" }
   | { type: "FETCH_SERVICES_SUCCESS"; payload: Microservice[] }
   | { type: "CREATE_SERVICE_SUCCESS"; payload: Microservice }
@@ -36,7 +37,19 @@ const initialState: State = {
 
 const serviceReducer = (state: State, action: Action): State => {
   switch (action.type) {
-    
+    case "SET_AUTH":
+      return {
+        ...state,
+        user: action.payload.user,
+        token: action.payload.token,
+        error: null,
+      };
+    case "LOGOUT":
+      return {
+        ...initialState,
+        user: null,
+        token: null,
+      };
     case "SET_ENV_FILTER":
       return { ...state, selectedEnvironment: action.payload };
     case "FETCH_SERVICES_SUCCESS":

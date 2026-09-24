@@ -1,13 +1,14 @@
 const API_BASE = "http://localhost:3000/api";
 
 export const login = async (
-  username: string,
-  password: string,
+  email: string,
+  passwordHash: string,
+  role: string,
 ): Promise<{ token: string }> => {
   const response = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, passwordHash, role }),
   });
 
   if (!response.ok) throw new Error("Invalid credentials");
@@ -15,13 +16,14 @@ export const login = async (
 };
 
 export const register = async (
-  username: string,
-  password: string,
+  email: string,
+  passwordHash: string,
+  role: string,
 ): Promise<void> => {
   const response = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, passwordHash, role }),
   });
 
   if (!response.ok) throw new Error("Failed to register");
