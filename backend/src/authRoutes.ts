@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { pool } from './db'; // Ensure this points to your database pool file
+import { pool } from './db';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
@@ -10,9 +10,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 router.post('/register', async (req, res) => {
   try {
     const email = req.body.email || req.body.username;
-    const password = req.body.password;
+    const passwordHash = req.body.passwordHash;
 
-    if (!email || !password) {
+    if (!email || !passwordHash) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
@@ -22,11 +22,11 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'Email is already registered' });
     }
 
-    // Hash password & save user
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash passwordHash & save user
+    const hashedpasswordHash = await bcrypt.hash(passwordHash, 10);
     const newUser = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
-      [email, hashedPassword]
+      'INSERT INTO users (email, passwordHash) VALUES ($1, $2) RETURNING id, email',
+      [email, hashedpasswordHash]
     );
 
     return res.status(201).json({
@@ -43,17 +43,17 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const email = req.body.email || req.body.username;
-    const password = req.body.password;
+    const passwordHash = req.body.passwordHash;
 
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email or passwordHash' });
     }
 
     const user = result.rows[0];
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(passwordHash, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email or passwordHash' });
     }
 
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
