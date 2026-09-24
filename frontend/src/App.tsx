@@ -12,21 +12,21 @@ const MainApp = () => {
     authContext?.dispatch({ type: "LOGOUT" });
   };
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h1>The Service Hub</h1>
-        {authContext?.state.isAuthenticated && (
-          <button className="bg-[#333]" onClick={handleLogout}>
-            Sign Out
-          </button>
-        )}
+    <div className="min-h-screen m-20">
+      <div className="flex flex-col justify-center items-center">
+        <div >
+          <h1>The Service Hub</h1>
+          {authContext?.state.isAuthenticated && (
+            <button className="bg-[#333]" onClick={handleLogout}>
+              Sign Out
+            </button>
+          )}
+        </div>
+        {authContext?.state.isAuthenticated ? <ServiceForm /> : <AuthForm />}
+        <hr className="mx-0 border-[#eee]" />
+        <h2>Menu</h2>
+        <ServiceList />
       </div>
-
-      {authContext?.state.isAuthenticated ? <ServiceForm /> : <AuthForm />}
-
-      <hr className="mx-0 border-[#eee]" />
-      <h2>Menu</h2>
-      <ServiceList />
     </div>
   );
 };

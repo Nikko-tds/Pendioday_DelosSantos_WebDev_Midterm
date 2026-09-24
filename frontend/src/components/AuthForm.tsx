@@ -31,7 +31,7 @@ export const AuthForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className='flex flex-col justify-center items-center' onSubmit={handleSubmit}>
       <h3>{isLogin ? 'Sign In' : 'Register'}</h3>
       {error && <p className="text-red-500">{error}</p>}
       
